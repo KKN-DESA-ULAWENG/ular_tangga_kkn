@@ -652,6 +652,10 @@
             }
         }
 
+        // Simpan riwayat pertanyaan yang sudah keluar agar tidak berulang
+        let remainingTruths = [...TRUTHS];
+        let remainingDares = [...DARES];
+
         function pickTD(type) {
             document.getElementById('modal-td-choice').classList.remove('active');
             
@@ -659,14 +663,30 @@
             const textEl = document.getElementById('td-text');
             
             let resultText = "";
+            
             if (type === 'truth') {
                 badge.textContent = "TRUTH";
                 badge.className = "absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 px-6 py-2 rounded-full font-black text-white shadow-lg uppercase tracking-widest text-sm border-4 border-white bg-blue-500";
-                resultText = TRUTHS[Math.floor(Math.random() * TRUTHS.length)];
+                
+                // Kalau list Truth sudah habis, reset ulang dari awal
+                if (remainingTruths.length === 0) {
+                    remainingTruths = [...TRUTHS];
+                }
+                // Ambil secara acak dari sisa list yang ada
+                let randomIndex = Math.floor(Math.random() * remainingTruths.length);
+                resultText = remainingTruths.splice(randomIndex, 1)[0];
+                
             } else {
                 badge.textContent = "DARE";
                 badge.className = "absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 px-6 py-2 rounded-full font-black text-white shadow-lg uppercase tracking-widest text-sm border-4 border-white bg-rose-500";
-                resultText = DARES[Math.floor(Math.random() * DARES.length)];
+                
+                // Kalau list Dare sudah habis, reset ulang dari awal
+                if (remainingDares.length === 0) {
+                    remainingDares = [...DARES];
+                }
+                // Ambil secara acak dari sisa list yang ada
+                let randomIndex = Math.floor(Math.random() * remainingDares.length);
+                resultText = remainingDares.splice(randomIndex, 1)[0];
             }
 
             textEl.textContent = `"${resultText}"`;
