@@ -17,8 +17,15 @@
         background-attachment: fixed;
         overflow-x: hidden;
         touch-action: manipulation;
+        min-height: 100vh;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem 1rem;
+        box-sizing: border-box;
     }
-
+ 
     #board-wrapper {
         position: relative;
         width: 100%;
@@ -31,7 +38,7 @@
         box-shadow: 0 15px 35px -5px rgba(0,0,0,0.3);
         overflow: hidden;
     }
-
+ 
     #board-grid {
         display: grid;
         grid-template-columns: repeat(10, 1fr);
@@ -42,7 +49,7 @@
         top: 0; left: 0;
         z-index: 1;
     }
-
+ 
     #svg-layer {
         position: absolute;
         top: 0; left: 0;
@@ -50,7 +57,7 @@
         z-index: 10;
         pointer-events: none;
     }
-
+ 
     #tokens-layer {
         position: absolute;
         top: 0; left: 0;
@@ -58,7 +65,7 @@
         z-index: 20;
         pointer-events: none;
     }
-
+ 
     .cell {
         position: relative;
         display: flex;
@@ -74,10 +81,10 @@
     .cell:nth-child(even) { background-color: #fef08a; }
     .row-odd .cell:nth-child(odd) { background-color: #fef08a; }
     .row-odd .cell:nth-child(even) { background-color: #fde047; }
-
+ 
     .cell.start-cell { background-color: #86efac !important; color: #166534; }
     .cell.finish-cell { background-color: #fca5a5 !important; color: #991b1b; }
-
+ 
     .cell-num {
         position: absolute;
         top: 4px; left: 4px;
@@ -86,7 +93,7 @@
         font-weight: bold;
         line-height: 1;
     }
-
+ 
     .td-marker {
         position: absolute;
         bottom: 4px; right: 4px;
@@ -103,13 +110,13 @@
         border: 2px solid #ef4444;
         transform: rotate(-10deg);
     }
-
+ 
     @media (max-width: 500px) {
         .cell { font-size: 1.2rem; }
         .td-marker { width: 18px; height: 18px; font-size: 0.5rem; }
         .cell-num { font-size: 0.65rem; }
     }
-
+ 
     .token {
         position: absolute;
         width: 5%;
@@ -122,7 +129,7 @@
         transition: top 0.3s ease-in-out, left 0.3s ease-in-out;
         will-change: top, left;
     }
-
+ 
     .dice-wrapper {
         perspective: 1000px;
     }
@@ -173,7 +180,7 @@
         75% { transform: rotate(-15deg) scale(1.1); }
         100% { transform: rotate(0deg) scale(1); }
     }
-
+ 
     .modal-overlay {
         background-color: rgba(15, 23, 42, 0.75);
         backdrop-filter: blur(5px);
@@ -190,7 +197,7 @@
         transform: scale(0.9); transition: transform 0.3s;
     }
     .modal-overlay.active .modal-card { transform: scale(1); }
-
+ 
     #notification-banner {
         position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-150%);
         background: #1e293b; color: white; padding: 12px 24px;
@@ -199,12 +206,13 @@
         transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     #notification-banner.show { transform: translateX(-50%) translateY(0); }
-
+ 
 </style>
-
-
+</head>
+<body>
+ 
 <div id="notification-banner">Menggelinding...</div>
-
+ 
 <header class="text-center mb-6 w-full max-w-lg">
     <h1 class="text-3xl sm:text-4xl font-black text-slate-800 tracking-tight drop-shadow-sm">
         ULAR TANGGA <span class="text-teal-600">KKN</span>
@@ -213,7 +221,7 @@
         Edisi Reuni & Kumpul After KKN
     </p>
 </header>
-
+ 
 <div id="setup-screen" class="w-full max-w-md bg-white p-8 rounded-3xl shadow-xl border border-slate-100 text-center transition-all duration-300">
     <h2 class="text-2xl font-black text-slate-800 mb-2">Mulai Permainan</h2>
     <p class="text-slate-500 mb-8 font-medium">Berapa orang yang ikut main?</p>
@@ -228,7 +236,7 @@
         <p class="text-xs text-blue-600 leading-relaxed">Pion berjalan sesuai dadu. Jika berhenti di kotak logo <span class="font-bold text-red-500 bg-white px-1 rounded-full border border-red-200">T/D</span>, kamu wajib memilih Truth atau Dare!</p>
     </div>
 </div>
-
+ 
 <main id="game-container" class="w-full max-w-[550px] hidden flex-col items-center">
     
     <div class="w-full flex justify-between items-center bg-white p-4 rounded-2xl shadow-lg mb-6 border border-slate-100">
@@ -253,7 +261,7 @@
             </button>
         </div>
     </div>
-
+ 
     <div id="board-wrapper">
         <div id="board-grid"></div>
         <svg id="svg-layer" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
@@ -262,7 +270,7 @@
     
     <button onclick="resetGameData()" class="mt-4 text-xs font-bold text-slate-400 hover:text-rose-500 transition-colors">🔄 Reset Permainan dari Awal</button>
 </main>
-
+ 
 <div id="modal-td-choice" class="modal-overlay">
     <div class="modal-card text-center">
         <div class="bg-red-100 text-red-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white shadow-lg -mt-10">
@@ -281,7 +289,7 @@
         </div>
     </div>
 </div>
-
+ 
 <div id="modal-td-result" class="modal-overlay">
     <div class="modal-card text-center relative pt-12">
         <div id="td-badge" class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 px-6 py-2 rounded-full font-black text-white shadow-lg uppercase tracking-widest text-sm border-4 border-white bg-blue-500">
@@ -297,7 +305,7 @@
         </button>
     </div>
 </div>
-
+ 
 <div id="modal-winner" class="modal-overlay">
     <div class="modal-card text-center relative">
         <div class="text-6xl mb-4">🏆</div>
@@ -310,20 +318,20 @@
         </button>
     </div>
 </div>
-
+ 
 <script>
     // Posisi Ular dan Tangga tersebar acak (zig-zag diagonal ke seluruh papan)
     const SNAKES = { 24: 5, 43: 18, 62: 34, 76: 48, 89: 68, 97: 79 };
     const LADDERS = { 4: 22, 15: 39, 28: 57, 45: 72, 63: 84, 81: 95 };
     const TD_CELLS = [3, 7, 11, 14, 19, 23, 26, 31, 36, 40, 44, 49, 53, 58, 61, 66, 70, 75, 78, 83, 87, 91, 94, 98];
-
+ 
     const PLAYERS_CFG = [
         { color: '#ef4444', class: 'bg-red-500', name: 'Merah' },
         { color: '#3b82f6', class: 'bg-blue-500', name: 'Biru' },
         { color: '#10b981', class: 'bg-green-500', name: 'Hijau' },
         { color: '#f59e0b', class: 'bg-amber-500', name: 'Kuning' }
     ];
-
+ 
     const TRUTHS = [
         "Selama KKN kemarin, siapa anggota posko yang sebenarnya paling sering bikin kamu makan hati tapi kamu diem-diem aja?",
         "Spill satu rahasia posko yang kamu simpan rapat-rapat dan baru berani kamu ceritain sekarang!",
@@ -351,7 +359,7 @@
         "Siapa yang paling sering ngabisin galon air minum tapi nggak pernah mau ngisi ulang?",
         "Sebutin satu hal dari posko kita dulu yang sekarang paling bikin kamu senyum-senyum sendiri kalau diingat."
     ];
-
+ 
     const DARES = [
         "Kirim pesan ke grup WhatsApp angkatan/jurusan: 'Gila, ternyata anak KKN posko kami kelakuannya...' (gantungin selama 5 menit).",
         "Tunjukin 5 foto atau video terakhir di galeri HP kamu ke semua orang yang ada di sini tanpa disortir.",
@@ -374,14 +382,14 @@
         "Tirukan gaya jalan dan ekspresi muka salah satu teman posko saat lagi kebingungan.",
         "Kirim chat ke salah satu teman di luar lingkaran ini bilang 'Kangen kerja bakti bareng kamu' dan tunjukin buktinya."
     ];
-
+ 
     let players = [];
     let currIdx = 0;
     let isMoving = false;
     
     let remainingTruths = [...TRUTHS];
     let remainingDares = [...DARES];
-
+ 
     const boardGrid = document.getElementById('board-grid');
     const svgLayer = document.getElementById('svg-layer');
     const tokensLayer = document.getElementById('tokens-layer');
@@ -389,7 +397,7 @@
     const btnRoll = document.getElementById('btn-roll');
     const playerNameEl = document.getElementById('current-player-name');
     const banner = document.getElementById('notification-banner');
-
+ 
     function getCoords(cellNum) {
         let rowFromBottom = Math.floor((cellNum - 1) / 10);
         let row = 9 - rowFromBottom;
@@ -397,7 +405,7 @@
         if (rowFromBottom % 2 !== 0) col = 9 - col;
         return { x: col * 10 + 5, y: row * 10 + 5, r: row, c: col };
     }
-
+ 
     function createBoard() {
         boardGrid.innerHTML = '';
         let cells = [];
@@ -407,7 +415,7 @@
             if (r % 2 !== 0) row.reverse();
             cells = cells.concat(row);
         }
-
+ 
         cells.forEach((num, idx) => {
             const div = document.createElement('div');
             div.className = 'cell';
@@ -423,10 +431,10 @@
             
             boardGrid.appendChild(div);
         });
-
+ 
         drawSVG();
     }
-
+ 
     function drawSVG() {
         let svgHTML = '';
         
@@ -438,14 +446,14 @@
             const dy = p2.y - p1.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
             const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-
+ 
             let rungs = '';
             let numRungs = Math.floor(dist / 3);
             for(let i = 1; i <= numRungs; i++) {
                 let rx = i * (dist / (numRungs+1));
                 rungs += `<line x1="${rx}" y1="-2" x2="${rx}" y2="2" stroke="#78350f" stroke-width="1.2" stroke-linecap="round"/>`;
             }
-
+ 
             svgHTML += `
                 <g transform="translate(${p1.x}, ${p1.y}) rotate(${angle})">
                     <line x1="0" y1="-2.5" x2="${dist}" y2="-2.5" stroke="#92400e" stroke-width="1.5" stroke-linecap="round" />
@@ -454,7 +462,7 @@
                 </g>
             `;
         });
-
+ 
         Object.entries(SNAKES).forEach(([from, to]) => {
             const p1 = getCoords(parseInt(from));
             const p2 = getCoords(parseInt(to));
@@ -463,10 +471,10 @@
             const dy = p2.y - p1.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
             const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-
+ 
             const c1x = dist * 0.3; const c1y = Math.min(dist*0.4, 20);
             const c2x = dist * 0.7; const c2y = -Math.min(dist*0.4, 20);
-
+ 
             svgHTML += `
                 <g transform="translate(${p1.x}, ${p1.y}) rotate(${angle})">
                     <path d="M 0 0 C ${c1x} ${c1y}, ${c2x} ${c2y}, ${dist} 0" fill="none" stroke="rgba(0,0,0,0.3)" stroke-width="4.5" stroke-linecap="round" transform="translate(0, 1)"/>
@@ -482,10 +490,10 @@
                 </g>
             `;
         });
-
+ 
         svgLayer.innerHTML = svgHTML;
     }
-
+ 
     function startGame(num) {
         players = [];
         for(let i=0; i<num; i++) {
@@ -498,7 +506,7 @@
         saveGameState();
         initGameUI();
     }
-
+ 
     function initGameUI() {
         document.getElementById('setup-screen').classList.add('hidden');
         document.getElementById('game-container').classList.remove('hidden');
@@ -508,7 +516,7 @@
         initTokens();
         updateTurnUI();
     }
-
+ 
     function initTokens() {
         tokensLayer.innerHTML = '';
         players.forEach(p => {
@@ -519,7 +527,7 @@
         });
         drawTokens();
     }
-
+ 
     function drawTokens() {
         const counts = {};
         players.forEach(p => counts[p.pos] = (counts[p.pos] || 0) + 1);
@@ -543,25 +551,25 @@
             t.style.backgroundColor = p.color;
         });
     }
-
+ 
     function showBanner(text, colorClass) {
         banner.textContent = text;
         banner.className = `show ${colorClass}`;
         setTimeout(() => banner.classList.remove('show'), 2000);
     }
-
+ 
     async function handleRoll() {
         if(isMoving) return;
         isMoving = true;
         btnRoll.disabled = true;
-
+ 
         diceUI.classList.add('rolling');
         let rollVal = 1;
         let rollInterval = setInterval(() => {
             rollVal = Math.floor(Math.random() * 6) + 1;
             diceUI.setAttribute('data-val', rollVal);
         }, 80);
-
+ 
         setTimeout(() => {
             clearInterval(rollInterval);
             diceUI.classList.remove('rolling');
@@ -571,11 +579,11 @@
             walkPlayer(finalDice);
         }, 500);
     }
-
+ 
     function walkPlayer(steps) {
         let p = players[currIdx];
         let stepCount = 0;
-
+ 
         let walkInt = setInterval(() => {
             if (stepCount < steps && p.pos < 100) {
                 p.pos++;
@@ -588,7 +596,7 @@
             }
         }, 300);
     }
-
+ 
     function checkLanding(p) {
         let jumpTo = 0;
         
@@ -599,7 +607,7 @@
             localStorage.removeItem('kkn_game_state');
             return;
         }
-
+ 
         if (SNAKES[p.pos]) {
             jumpTo = SNAKES[p.pos];
             showBanner('Aaaa kena Ular! 🐍 Turun...', 'bg-rose-500');
@@ -607,7 +615,7 @@
             jumpTo = LADDERS[p.pos];
             showBanner('Yeay naik Tangga! 🪜 Naik...', 'bg-blue-500');
         }
-
+ 
         if (jumpTo > 0) {
             setTimeout(() => {
                 p.pos = jumpTo;
@@ -619,7 +627,7 @@
             checkTD(p);
         }
     }
-
+ 
     function checkTD(p) {
         if (TD_CELLS.includes(p.pos)) {
             document.getElementById('modal-td-choice').classList.add('active');
@@ -627,7 +635,7 @@
             nextTurn();
         }
     }
-
+ 
     function pickTD(type) {
         document.getElementById('modal-td-choice').classList.remove('active');
         
@@ -650,18 +658,18 @@
             let randomIndex = Math.floor(Math.random() * remainingDares.length);
             resultText = remainingDares.splice(randomIndex, 1)[0];
         }
-
+ 
         textEl.textContent = `"${resultText}"`;
         setTimeout(() => {
             document.getElementById('modal-td-result').classList.add('active');
         }, 300);
     }
-
+ 
     function closeTD() {
         document.getElementById('modal-td-result').classList.remove('active');
         nextTurn();
     }
-
+ 
     function nextTurn() {
         currIdx = (currIdx + 1) % players.length;
         updateTurnUI();
@@ -669,23 +677,23 @@
         isMoving = false;
         btnRoll.disabled = false;
     }
-
+ 
     function updateTurnUI() {
         let p = players[currIdx];
         playerNameEl.textContent = p.name;
         playerNameEl.className = `px-4 py-1.5 rounded-lg text-white font-black text-sm sm:text-base shadow-sm transition-colors ${p.cssClass}`;
     }
-
+ 
     function saveGameState() {
         const state = { players, currIdx };
         localStorage.setItem('kkn_game_state', JSON.stringify(state));
     }
-
+ 
     function resetGameData() {
         localStorage.removeItem('kkn_game_state');
         location.reload();
     }
-
+ 
     window.onload = function() {
         const savedState = localStorage.getItem('kkn_game_state');
         if (savedState) {
