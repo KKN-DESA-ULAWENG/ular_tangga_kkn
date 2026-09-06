@@ -247,7 +247,10 @@
             </div>
         </div>
         
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3">
+            <button id="btn-sound" onclick="toggleSound()" title="Nyala/Matikan Suara" class="w-9 h-9 flex-shrink-0 flex items-center justify-center bg-slate-100 hover:bg-slate-200 rounded-full text-lg transition-all">
+                🔊
+            </button>
             <div class="dice-wrapper">
                 <div id="dice-ui" class="dice" data-val="1">
                     <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
@@ -382,6 +385,67 @@
         "Tirukan gaya jalan dan ekspresi muka salah satu teman posko saat lagi kebingungan.",
         "Kirim chat ke salah satu teman di luar lingkaran ini bilang 'Kangen kerja bakti bareng kamu' dan tunjukin buktinya."
     ];
+ 
+    // ===== SOUND ENGINE (Web Audio API - tanpa file eksternal) =====
+    let audioCtx = null;
+    let soundEnabled = (localStorage.getItem('kkn_sound') !== 'off');
+ 
+    function getAudioCtx() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        return audioCtx;
+    }
+ 
+    function playTone(freq, duration, type, volume, freqEnd) {
+        if (!soundEnabled) return;
+        try {
+            const ctx = getAudioCtx();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = type || 'square';
+            osc.frequency.setValueAtTime(freq, ctx.currentTime);
+            if (freqEnd) osc.frequency.exponentialRampToValueAtTime(freqEnd, ctx.currentTime + duration);
+            gain.gain.setValueAtTime(volume, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + duration);
+        } catch(e) {}
+    }
+ 
+    // suara dadu goyang: klik pendek nada acak, meniru dadu berbenturan
+    function playDiceShake() {
+        playTone(120 + Math.random() * 500, 0.045, 'square', 0.1);
+    }
+ 
+    // suara dadu final berhenti: sedikit lebih berat
+    function playDiceStop() {
+        playTone(300, 0.15, 'square', 0.15, 100);
+    }
+ 
+    // suara pion melangkah
+    function playStep() {
+        playTone(700 + Math.random() * 150, 0.07, 'triangle', 0.14, 500);
+    }
+ 
+    function playLadder() {
+        playTone(400, 0.3, 'sine', 0.15, 900);
+    }
+ 
+    function playSnake() {
+        playTone(500, 0.35, 'sawtooth', 0.12, 120);
+    }
+ 
+    function toggleSound() {
+        soundEnabled = !soundEnabled;
+        localStorage.setItem('kkn_sound', soundEnabled ? 'on' : 'off');
+        document.getElementById('btn-sound').textContent = soundEnabled ? '🔊' : '🔇';
+        if (soundEnabled) getAudioCtx();
+    }
+    // ===== END SOUND ENGINE =====
  
     let players = [];
     let currIdx = 0;
@@ -568,6 +632,7 @@
         let rollInterval = setInterval(() => {
             rollVal = Math.floor(Math.random() * 6) + 1;
             diceUI.setAttribute('data-val', rollVal);
+            playDiceShake();
         }, 80);
  
         setTimeout(() => {
@@ -575,6 +640,7 @@
             diceUI.classList.remove('rolling');
             const finalDice = Math.floor(Math.random() * 6) + 1;
             diceUI.setAttribute('data-val', finalDice);
+            playDiceStop();
             
             walkPlayer(finalDice);
         }, 500);
@@ -588,6 +654,7 @@
             if (stepCount < steps && p.pos < 100) {
                 p.pos++;
                 drawTokens();
+                playStep();
                 stepCount++;
             } else {
                 clearInterval(walkInt);
@@ -611,9 +678,11 @@
         if (SNAKES[p.pos]) {
             jumpTo = SNAKES[p.pos];
             showBanner('Aaaa kena Ular! 🐍 Turun...', 'bg-rose-500');
+            playSnake();
         } else if (LADDERS[p.pos]) {
             jumpTo = LADDERS[p.pos];
             showBanner('Yeay naik Tangga! 🪜 Naik...', 'bg-blue-500');
+            playLadder();
         }
  
         if (jumpTo > 0) {
@@ -695,6 +764,8 @@
     }
  
     window.onload = function() {
+        document.getElementById('btn-sound').textContent = soundEnabled ? '🔊' : '🔇';
+ 
         const savedState = localStorage.getItem('kkn_game_state');
         if (savedState) {
             try {
